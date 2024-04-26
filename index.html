@@ -63,102 +63,55 @@
 <p>reference：</p>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/392500906">极大似然估计、极大后验估计和贝叶斯估计</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/61298823/answer/1545994922">https://www.zhihu.com/question/61298823/answer/1545994922</a></p>
-</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-04-25T16:00:00.000Z" title="2024/4/26上午12:00:00">2024-04-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-04-26T09:08:12.774Z" title="2024/4/26下午5:08:12">2024-04-26</time></span><span class="level-item">9 minutes read (About 1402 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/">VAE：变分推断、MC估计和重要性采样</a></p><div class="content"><blockquote>
+</div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-04-25T16:00:00.000Z" title="2024/4/26上午12:00:00">2024-04-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-04-26T09:25:18.807Z" title="2024/4/26下午5:25:18">2024-04-26</time></span><span class="level-item">9 minutes read (About 1384 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/">VAE：变分推断、MC估计和重要性采样</a></p><div class="content"><blockquote>
 <p>本文将从表征学习的角度以及隐变量模型的角度探讨VAE模型</p>
 </blockquote>
-<h1 id="隐变量的意义">隐变量的意义</h1>
+<h1>隐变量的意义</h1>
 <p>VAE从概率密度估计的角度来说是一种mixture model</p>
 <p>基本的高斯混合模型写做：</p>
-<p><span class="math inline">\(p(x) = \sum_{i=1}^{k} w_i \mathcal{N}(x |
-\mu_i, \Sigma_i)\)</span></p>
-<p>其中的i是指第i个高斯分布，<span
-class="math inline">\(u_i\)</span>和<span
-class="math inline">\(\Sigma_i\)</span>​指的是第i个高斯分布的均值和方差</p>
-<p>但是高斯混合模型的拟合能力是有限的，假如我们用一簇无穷多的高斯分布来拟合最终的分布,
-那这个拟合能力不久非常好了吗？怎么去建模这个无穷多(infinite)的分布呢?</p>
-<figure>
-<img src="image\image-20240426131217788-1714108353673-1.png"
-alt="image-20240426131217788" />
-<figcaption aria-hidden="true">image-20240426131217788</figcaption>
-</figure>
-<p>这图摘自S9868 Deep
-learning课程，非常形象的展示了混合模型做了什么：用高斯分布把数据流形填满</p>
+<p>$p(x) = \sum_{i=1}^{k} w_i \mathcal{N}(x | \mu_i, \Sigma_i)$</p>
+<p>其中的i是指第i个高斯分布，$u_i$和$\Sigma_i$​指的是第i个高斯分布的均值和方差</p>
+<p>但是高斯混合模型的拟合能力是有限的，假如我们用一簇无穷多的高斯分布来拟合最终的分布, 那这个拟合能力不久非常好了吗？怎么去建模这个无穷多(infinite)的分布呢?</p>
+<img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426131217788-1714108353673-1.png" class="" title="image-20240426131217788">
+<p>这图摘自S9868 Deep learning课程，非常形象的展示了混合模型做了什么：用高斯分布把数据流形填满</p>
 <p>怎么做无限混合呢？VAE给出的解答是把累加变成了积分</p>
-<p><span class="math inline">\(p_{\theta}(x) = \int_{z} \mathcal{N}(x;
-g_{\theta}(z), \Sigma_{\theta}(z)) \mathcal{N}(z; 0, I) dz\)</span></p>
-<img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426131714727-1714122427738-1.png" class="" title="image-20240426131714727">
-<p>也即是假设混合高斯的权重符合一个分布，属于隐变量<span
-class="math inline">\(z\)</span>，并且我们的高斯分布是隐变量参数化的结果,即式中的条件分布,分别参数化了高斯分布的均值<span
-class="math inline">\(g_{\theta}\)</span>和方差<span
-class="math inline">\(\Sigma_{\theta}(z))\)</span></p>
+<p>$p_{\theta}(x) = \int_{z} \mathcal{N}(x; g_{\theta}(z), \Sigma_{\theta}(z)) \mathcal{N}(z; 0, I) dz$</p>
+<p>也即是假设混合高斯的权重符合一个分布，属于隐变量$z$，并且我们的高斯分布是隐变量参数化的结果,即式中的条件分布,分别参数化了高斯分布的均值$g_{\theta}$和方差$\Sigma_{\theta}(z))$</p>
 <img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426131714727.png" class="" title="image-20240426131714727">
-<p>S9868 也给出了无限混合的感性可视化，参数化帮助我们的mixture
-model更加的flexible了，能自己学习怎么去填满这个数据流形。</p>
-<p>这里的<span class="math inline">\(P(z)\)</span>和<span
-class="math inline">\(P_\theta(x|z)\)</span>​都假设的高斯分布，当然我们也能make
-an infinite mixture of the autoregressive distribution and so on.
-,从这个角度来说mixture分布是meta model 可以用其他的密度估计模型替代</p>
+<p>S9868 也给出了无限混合的感性可视化，参数化帮助我们的mixture model更加的flexible了，能自己学习怎么去填满这个数据流形。</p>
+<p>这里的$P(z)$和$P_\theta(x|z)$​都假设的高斯分布，当然我们也能make an infinite mixture of the autoregressive distribution and so on. ,从这个角度来说mixture分布是meta model 可以用其他的密度估计模型替代</p>
 <p>这个概率摸底建模是一个积分的无穷项，这里我们需要用到统计学的一个基本技术，用MC采样来估计这个积分</p>
-<p><span class="math inline">\(p_{\theta}(x) = \int
-p_{\theta}(x|z)p_z(z)dz = \mathbb{E}_{z \sim p_z(z)}[p_{\theta}(x|z)]
-\approx \frac{1}{M} \sum_{i=1}^{M} p_{\theta}(x|z^{(i)}), \quad z^{(i)}
-\sim p_z\)</span></p>
+<p>$p_{\theta}(x) = \int p_{\theta}(x|z)p_z(z)dz = \mathbb{E}<em>{z \sim p_z(z)}[p</em>{\theta}(x|z)] \approx \frac{1}{M} \sum_{i=1}^{M} p_{\theta}(x|z^{(i)}), \quad z^{(i)} \sim p_z$</p>
 <blockquote>
 <p>MC采样的直观理解是求平均值的这个过程本身就蕴含了采样过程</p>
 </blockquote>
 <p>当我们概率建模有了，接下来就是计算极大似然来优化参数！</p>
-<p><span class="math inline">\(E_{x \sim p_{data} }log
-P_{\theta}(x)\)</span>​</p>
+<p>$E_{x \sim p_{data} }log P_{\theta}(x)$​</p>
 <blockquote>
 <p>极大似然认为最优的分布参数是一个定值，因此我们把数据扔进去优化一个maximal的似然值</p>
 </blockquote>
-<p><span class="math inline">\(\theta^* = \underset{\theta}{\arg\min}
-\frac{1}{M} \sum_{i=1}^{N} \log \left( \sum_{j=1}^{M}
-\mathcal{N}\left(x^{(i)}; g_{\theta}^{\mu}\left(z^{(j)}\right),
-g_{\theta}^{\Sigma}\left(z^{(j)}\right)\right)  \right)\)</span></p>
+<p>$\theta^* = \underset{\theta}{\arg\min} \frac{1}{M} \sum_{i=1}^{N} \log \left( \sum_{j=1}^{M} \mathcal{N}\left(x^{(i)}; g_{\theta}^{\mu}\left(z^{(j)}\right), g_{\theta}^{\Sigma}\left(z^{(j)}\right)\right)  \right)$</p>
 <blockquote>
 <p>以上都是在拟合概率，但是对于神经网络而言我们有的标签不是概率这太抽象了，我们只有从Pdata中获得的样本,如何优化这个混合模型？</p>
 </blockquote>
-<p>把方差固定，优化这个似然值就变成优化<span
-class="math inline">\(||x-g_{\theta}^{\mu}||\)</span>,训练的步骤是我们采样一堆隐变量z，扔进网络<span
-class="math inline">\(g_{\theta}\)</span>中产生一堆高斯分布的均值，然后在和一个batch的样本<span
-class="math inline">\(x\)</span> 计算L2norm，这就是我们要的似然值.</p>
+<p>把方差固定，优化这个似然值就变成优化$||x-g_{\theta}^{\mu}||$,训练的步骤是我们采样一堆隐变量z，扔进网络$g_{\theta}$中产生一堆高斯分布的均值，然后在和一个batch的样本$x$ 计算L2norm，这就是我们要的似然值.</p>
 <p>我们在建模概率的时候是利用的MC采样来估计积分</p>
-<p><span class="math inline">\(p_{\theta}(x) \approx \frac{1}{M} \left(
-p_{\theta}(x|z^{(1)}) + p_{\theta}(x|z^{(2)}) + p_{\theta}(x|z^{(3)}) +
-\ldots \right)\)</span></p>
+<p>$p_{\theta}(x) \approx \frac{1}{M} \left( p_{\theta}(x|z^{(1)}) + p_{\theta}(x|z^{(2)}) + p_{\theta}(x|z^{(3)}) + \ldots \right)$</p>
 <p>遇到一个问题，往往高维空间MC采样的效率很低，往往会变成这样：</p>
-<p><span class="math inline">\(p_{\theta}(x) \approx \frac{1}{M} \left(
-0 + p_{\theta}(x|z^{(2)}) + 0 + \ldots \right)\)</span>​</p>
+<p>$p_{\theta}(x) \approx \frac{1}{M} \left( 0 + p_{\theta}(x|z^{(2)}) + 0 + \ldots \right)$​</p>
 <p>这意味着要想精确的估计概率，必须要大量的采样，采样效率很低</p>
 <p>这里引出本文的第二个技术，重要性采样：</p>
-<p><span class="math inline">\(p_{\theta}(x) = \mathbb{E}_{z \sim
-p_z}[p_{\theta}(x|z)] = \int p_z(z)p_{\theta}(x|z)dz = \int
-\frac{p_z(z)}{q_z(z)} p_{\theta}(x|z)q_z(z)dz = \mathbb{E}_{z \sim
-q_z}\left[\frac{p_z(z)}{q_z(z)} p_{\theta}(x|z)\right]\)</span></p>
+<p>$p_{\theta}(x) = \mathbb{E}<em>{z \sim p_z}[p</em>{\theta}(x|z)] = \int p_z(z)p_{\theta}(x|z)dz = \int \frac{p_z(z)}{q_z(z)} p_{\theta}(x|z)q_z(z)dz = \mathbb{E}<em>{z \sim q_z}\left[\frac{p_z(z)}{q_z(z)} p</em>{\theta}(x|z)\right]$</p>
 <p>重要性采样给出一种不用在原始分布p中采样，而在新的分布q中采样，这是一种减少方差的采样技术</p>
-<p>最优的<span class="math inline">\(q(z)\)</span>正比于<span
-class="math inline">\(p(z)P_{\theta}(x|z)\)</span> 后者正比于<span
-class="math inline">\(P(x,z)\)</span> 它又正比于<span
-class="math inline">\(p_{\theta}(z|x)\)</span>，所以可以证明最优的<span
-class="math inline">\(q(z)\)</span>等于<span
-class="math inline">\(p_{\theta}(z|x)\)</span></p>
-<p><span class="math inline">\(p_{\theta}(x) \approx \frac{1}{M}
-\sum_{j=1}^{M} \frac{p_z(z^{(j)})}{p_{\theta}(z^{(j)}|x)}
-p_{\theta}(x|z^{(j)})\)</span>, <span class="math inline">\(z^{(j)} \sim
-p_{\theta}(Z|x)\)</span></p>
-<img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426152338348.png" class="">
+<p>最优的$q(z)$正比于$p(z)P_{\theta}(x|z)$ 后者正比于$P(x,z)$ 它又正比于$p_{\theta}(z|x)$，所以可以证明最优的$q(z)$等于$p_{\theta}(z|x)$</p>
+<p>$p_{\theta}(x) \approx \frac{1}{M} \sum_{j=1}^{M} \frac{p_z(z^{(j)})}{p_{\theta}(z^{(j)}|x)} p_{\theta}(x|z^{(j)})$,    $z^{(j)} \sim p_{\theta}(Z|x)$</p>
 
+<p>最开始的</p>
 
-<p>在重要性采样的语境下，<span
-class="math inline">\(p_{\theta}(z|x)\)</span> 这个z就是和建模<span
-class="math inline">\(p_{\theta}(x)\)</span>最相关的z</p>
-<p>高斯混合模型的有点是隐变量分布是高斯分布，重要性采样的效率更高但是这里又出现了一个难以采样的分布<span
-class="math inline">\(P_{\theta}(z|x)\)</span>​​
-这个时候引入最后一个重要的技巧，变分推断(Variational inference)</p>
+<p>在重要性采样的语境下，$p_{\theta}(z|x)$ 这个z就是和建模$p_{\theta}(x)$最相关的z</p>
+<p>高斯混合模型的有点是隐变量分布是高斯分布，重要性采样的效率更高但是这里又出现了一个难以采样的分布$P_{\theta}(z|x)$​​ 这个时候引入最后一个重要的技巧，变分推断(Variational inference)</p>
 <blockquote>
-<p>顺便吐槽一句，很多的教程都从变分推断出发，丝毫不讨论生成的过程，这和我生成模型又有什么关系呢
-:D</p>
+<p>顺便吐槽一句，很多的教程都从变分推断出发，丝毫不讨论生成的过程，这和我生成模型又有什么关系呢 :D</p>
 </blockquote>
 </div></article></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2023-09-12T19:11:35.000Z" title="2023/9/13上午3:11:35">2023-09-13</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-09-12T23:39:43.165Z" title="2023/9/13上午7:39:43">2023-09-13</time></span><span class="level-item">3 minutes read (About 511 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2023/09/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96/">深度学习中的正则化</a></p><div class="content"><p>最近在看集成学习，集成学习中对基学习器的要求是和而不同，及满足两个条件：误差 $\epsilon &lt;0.5$且具有多样性，由此引出一系列多样性方法，其和正则化非常类似。借助课上提到的框架对正则化进行梳理。并且试图统一绝大部分ml和dl的正则化方法</p></div><a class="article-more button is-small is-size-7" href="/2023/09/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96/#more">Read more</a></article></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Rick Wang"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Rick Wang</p><p class="is-size-6 is-block">AI Engineering ComputerVision MachineLearning</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Shanghai China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">5</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Rickustc" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Rickustc"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Facebook" href="https://facebook.com"><i class="fab fa-facebook"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/8kroos8madrid"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Dribbble" href="https://dribbble.com"><i class="fab fa-dribbble"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--><!--!--><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">Subscribe for updates</h3><form action="https://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(&#039;https://feedburner.google.com/fb/a/mailverify?uri=&#039;,&#039;popupwindow&#039;,&#039;scrollbars=yes,width=550,height=520&#039;);return true"><input type="hidden" value="" name="uri"><input type="hidden" name="loc" value="en_US"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="card widget" data-type="subscribe-email"><div class="card-content"><div class="menu"><h3 class="menu-label">follow.it</h3><form action="" method="post" target="_blank"><div class="field has-addons"><div class="control has-icons-left is-expanded"><input class="input" name="email" type="email" placeholder="Email"><span class="icon is-small is-left"><i class="fas fa-envelope"></i></span></div><div class="control"><input class="button" type="submit" value="Subscribe"></div></div></form></div></div></div><div class="column-right-shadow is-hidden-widescreen"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3"><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-26T08:11:47.000Z">2024-04-26</time></p><p class="title"><a href="/2024/04/26/GAN/">GAN</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-25T17:00:35.000Z">2024-04-26</time></p><p class="title"><a href="/2024/04/26/%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%9A%84%E4%B8%A4%E7%A7%8D%E7%90%86%E8%A7%A3%E8%A7%92%E5%BA%A6/">贝叶斯的两个理解角度</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2024-04-25T16:00:00.000Z">2024-04-26</time></p><p class="title"><a href="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/">VAE：变分推断、MC估计和重要性采样</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-09-12T19:11:35.000Z">2023-09-13</time></p><p class="title"><a href="/2023/09/13/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%B8%AD%E7%9A%84%E6%AD%A3%E5%88%99%E5%8C%96/">深度学习中的正则化</a></p></div></article></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2024/"><span class="level-start"><span class="level-item">2024</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2023/"><span class="level-start"><span class="level-item">2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><div class="card widget" data-type="tags"><div class="card-content"><div class="menu"><h3 class="menu-label">Tags</h3><div class="field is-grouped is-grouped-multiline"><div class="control"><a class="tags has-addons" href="/tags/DGM/"><span class="tag">DGM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/LVM/"><span class="tag">LVM</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/VAE/"><span class="tag">VAE</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%A6%82%E7%8E%87%E8%AE%BA-ML%E6%95%B0%E5%AD%A6/"><span class="tag">概率论 ML数学</span><span class="tag">1</span></a></div><div class="control"><a class="tags has-addons" href="/tags/%E6%AD%A3%E5%88%99%E5%8C%96/"><span class="tag">正则化</span><span class="tag">1</span></a></div></div></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/agumon.svg" alt="Rick Universe" height="28"></a><p class="is-size-7"><span>&copy; 2024 Rick Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a><br><span id="busuanzi_container_site_uv">Visited by <span id="busuanzi_value_site_uv">0</span> users</span></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
             article: {
