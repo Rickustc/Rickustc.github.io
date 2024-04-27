@@ -33,10 +33,12 @@
       switchTab();
       window.addEventListener('hashchange', switchTab, false);
   })();
-  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/agumon.svg" alt="Rick Universe" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/rick">RICK UNIVERSE</a><a class="navbar-item" href="/curriculum">Curriculum</a><a class="navbar-item" href="/">BLOG</a><a class="navbar-item" href="/life">LIFE</a><a class="navbar-item" href="/archives">ARCHIVES</a><a class="navbar-item" href="/categories">CATEGORIES</a><a class="navbar-item" href="/tags">TAGS</a><a class="navbar-item" href="/about">ABOUT</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">LVM</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-04-25T16:00:00.000Z" title="2024/4/26上午12:00:00">2024-04-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-04-26T09:25:18.807Z" title="2024/4/26下午5:25:18">2024-04-26</time></span><span class="level-item">9 minutes read (About 1384 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/">VAE：变分推断、MC估计和重要性采样</a></p><div class="content"><blockquote>
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/agumon.svg" alt="Rick Universe" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/rick">RICK UNIVERSE</a><a class="navbar-item" href="/curriculum">Curriculum</a><a class="navbar-item" href="/">BLOG</a><a class="navbar-item" href="/life">LIFE</a><a class="navbar-item" href="/archives">ARCHIVES</a><a class="navbar-item" href="/categories">CATEGORIES</a><a class="navbar-item" href="/tags">TAGS</a><a class="navbar-item" href="/about">ABOUT</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><div class="card-content"><nav class="breadcrumb" aria-label="breadcrumbs"><ul><li><a href="/tags">Tags</a></li><li class="is-active"><a href="#" aria-current="page">LVM</a></li></ul></nav></div></div><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-04-25T16:00:00.000Z" title="2024/4/26上午12:00:00">2024-04-26</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-04-27T05:46:35.353Z" title="2024/4/27下午1:46:35">2024-04-27</time></span><span class="level-item">9 minutes read (About 1399 words)</span></div></div><p class="title is-3 is-size-4-mobile"><a class="link-muted" href="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/">VAE：变分推断、MC估计和重要性采样</a></p><div class="content"><span id="more"></span>
+<blockquote>
 <p>本文将从表征学习的角度以及隐变量模型的角度探讨VAE模型</p>
 </blockquote>
 <h1 id="隐变量的意义">隐变量的意义</h1>
+<h1 id="高斯混合模型">高斯混合模型</h1>
 <p>VAE从概率密度估计的角度来说是一种mixture model</p>
 <p>基本的高斯混合模型写做：</p>
 <p><span class="math inline">\(p(x) = \sum_{i=1}^{k} w_i \mathcal{N}(x |
@@ -46,7 +48,7 @@ class="math inline">\(u_i\)</span>和<span
 class="math inline">\(\Sigma_i\)</span>​指的是第i个高斯分布的均值和方差</p>
 <p>但是高斯混合模型的拟合能力是有限的，假如我们用一簇无穷多的高斯分布来拟合最终的分布,
 那这个拟合能力不久非常好了吗？怎么去建模这个无穷多(infinite)的分布呢?</p>
-<img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426131217788-1714108353673-1.png" class="" title="image-20240426131217788">
+<img src="/2024/04/26/VAE%EF%BC%9A%E5%8F%98%E5%88%86%E6%8E%A8%E6%96%AD%E3%80%81MC%E4%BC%B0%E8%AE%A1%E5%92%8C%E9%87%8D%E8%A6%81%E6%80%A7%E9%87%87%E6%A0%B7/image-20240426131217788-1714108353673-1.png" class="" width="">
 <p>这图摘自S9868 Deep
 learning课程，非常形象的展示了混合模型做了什么：用高斯分布把数据流形填满</p>
 <p>怎么做无限混合呢？VAE给出的解答是把累加变成了积分</p>
@@ -88,6 +90,7 @@ g_{\theta}^{\Sigma}\left(z^{(j)}\right)\right)  \right)\)</span></p>
 class="math inline">\(||x-g_{\theta}^{\mu}||\)</span>,训练的步骤是我们采样一堆隐变量z，扔进网络<span
 class="math inline">\(g_{\theta}\)</span>中产生一堆高斯分布的均值，然后在和一个batch的样本<span
 class="math inline">\(x\)</span> 计算L2norm，这就是我们要的似然值.</p>
+<h1 id="重要性采样">重要性采样</h1>
 <p>我们在建模概率的时候是利用的MC采样来估计积分</p>
 <p><span class="math inline">\(p_{\theta}(x) \approx \frac{1}{M} \left(
 p_{\theta}(x|z^{(1)}) + p_{\theta}(x|z^{(2)}) + p_{\theta}(x|z^{(3)}) +
@@ -118,6 +121,7 @@ p_{\theta}(Z|x)\)</span></p>
 <p>在重要性采样的语境下，<span
 class="math inline">\(p_{\theta}(z|x)\)</span> 这个z就是和建模<span
 class="math inline">\(p_{\theta}(x)\)</span>最相关的z</p>
+<h1 id="变分推断">变分推断</h1>
 <p>高斯混合模型的有点是隐变量分布是高斯分布，重要性采样的效率更高但是这里又出现了一个难以采样的分布<span
 class="math inline">\(P_{\theta}(z|x)\)</span>​​
 这个时候引入最后一个重要的技巧，变分推断(Variational inference)</p>
