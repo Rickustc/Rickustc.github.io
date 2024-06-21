@@ -6,7 +6,7 @@
   <link href="https://rickustc.github.io/atom.xml" rel="self"/>
   
   <link href="https://rickustc.github.io/"/>
-  <updated>2024-04-27T05:46:45.243Z</updated>
+  <updated>2024-06-21T09:42:49.661Z</updated>
   <id>https://rickustc.github.io/</id>
   
   <author>
@@ -15,6 +15,59 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SDE视角的扩散模型</title>
+    <link href="https://rickustc.github.io/2024/SDE%E8%A7%86%E8%A7%92%E7%9A%84DDPM/"/>
+    <id>https://rickustc.github.io/2024/SDE%E8%A7%86%E8%A7%92%E7%9A%84DDPM/</id>
+    <published>2024-06-19T16:00:00.000Z</published>
+    <updated>2024-06-21T09:42:49.661Z</updated>
+    
+    <content type="html"><![CDATA[<p>连续视角的扩散模型，用SDE描述</p><span id="more"></span><h1 id="为什么要用sde描述随机过程">为什么要用SDE描述随机过程：</h1><p>中间过程的扩散噪声图<spanclass="math inline">\(x_t\)</span>有两个观察</p><ul><li><p>当t固定的时候可以<spanclass="math inline">\(x_t\)</span>看做一个随机变量，满足<spanclass="math inline">\(N(\sqrt{\overline\alpha_t} x_0,{1-\overline\alpha_t}I)\)</span>​分布的随机变量</p></li><li><p>当x固定的时候，去改变t，也就是得到<spanclass="math inline">\(x_0,x_1...x_T\)</span>这样一条序列，也就是完成了一次采样，固定了一条采样轨迹</p></li></ul><p>基于对于<spanclass="math inline">\(x_t\)</span>的两个观察，可以认为<spanclass="math inline">\(x_t\)</span>​实际上是一个随机过程(关于x和t的函数<spanclass="math inline">\(f(x,t)\)</span>​​，描述随机过程的方式就有SDE，我们用SDE描述随机过程</p><h1id="如何描述从基于tanformation的离散序列到sde描述的连续过程">如何描述：从基于tanformation的离散序列到SDE描述的连续过程</h1><p>scoremodel和DDPm都是从离散时间点出发，考虑正向和反向的离散的序列：</p><p><span class="math inline">\(x_0,x_1...x_T\)</span> <spanclass="math inline">\(x_T,x_T-1...x_0\)</span></p><p>用SDE考虑这一过程就是考虑离散过程--&gt;连续过程的转化，使得这个过程更加的一般</p><p>$t,-&gt;0 \ 正向：x_t-x_{t+}, \ 反向：x_{t+} - x_t \ $</p><h2 id="score-based-diffusion-process">score-based diffusionprocess</h2><p>forward process</p><p>$dx = f_t(x) , dt + g_t , dw $​</p><p>对应的离散形式是</p><p><span class="math inline">\(x_{t+\Delta t} - x_t = f_t(x_t) \Delta t+ g_t \sqrt{\Delta t} \, \varepsilon_t, \quad \varepsilon \sim\mathcal{N}(0, I)\)</span></p><p>reverse process:</p><p><span class="math inline">\(dx = \left[ f_t(x) - g_t^2 \nabla_x \logp_t(x) \right] dt + g_t dw\)</span></p><p>对应的离散形式是：</p><p><span class="math inline">\(x_t - x_{t+\Delta t} = - \left[f_{t+\Delta t}(x_{t+\Delta t}) - g_{t+\Delta t}^2 \nabla_{x_{t+\Deltat}} \log p(x_{t+\Delta t}) \right] \Delta t + g_{t+\Delta t}\sqrt{\Delta t} \, \varepsilon\)</span></p><p>ddpm和score model的SDE视角</p><p>VE-SDE: NCSN</p><p>VP-SDE: DDPM</p><p>这篇文章还比较粗糙，后面还会补充...</p><p>参考：</p><p>https://space.bilibili.com/13355688?spm_id_from=333.788.0.0</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;连续视角的扩散模型，用SDE描述&lt;/p&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>ncsn原理解释</title>
+    <link href="https://rickustc.github.io/2024/ncsn%E5%8E%9F%E7%90%86%E8%A7%A3%E9%87%8A/"/>
+    <id>https://rickustc.github.io/2024/ncsn%E5%8E%9F%E7%90%86%E8%A7%A3%E9%87%8A/</id>
+    <published>2024-06-14T16:00:00.000Z</published>
+    <updated>2024-06-20T02:51:14.313Z</updated>
+    
+    <content type="html"><![CDATA[<p>score maching模型的里程碑之作</p><span id="more"></span>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;score maching模型的里程碑之作&lt;/p&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>DDPM</title>
+    <link href="https://rickustc.github.io/2024/DDPM/"/>
+    <id>https://rickustc.github.io/2024/DDPM/</id>
+    <published>2024-06-09T16:00:00.000Z</published>
+    <updated>2024-06-20T02:44:56.523Z</updated>
+    
+    <content type="html"><![CDATA[<p>这一章要开始讲DDPM了</p><span id="more"></span><h1 id="离散扩散和vae">离散扩散和VAE</h1><p>表面上看DDPM和VAE很类似？</p><p>VAE的loss写作</p><p><span class="math inline">\(\mathcal{L}(\theta, \phi; x, z) =\mathbb{E}_{q_\phi(z|x)}[\log p_\theta(x|z)] - D_{KL}(q_\phi(z|x) \|p(z))\)</span>​</p><p>包含KL loss和reconstruction loss</p><p>VAE是把图像编码到高斯噪声(KLloss)，再从高斯噪声解码到图像(重建loss)</p><p>但是VAE本质上是属于高斯混合模型，如果可以的话，这个模型也想采样更复杂的z！(详细理解可以看之前的VAE文章)</p><p>而DDPM主要是定义了一个transformation，这个transformation是一条langveinMCMC，能把输入的随机变量真正变到高斯分布，这个离散过程对应着一个SDE，然后逆向过程也对应着一个逆SDE，这个逆向SDE以类似的方式收敛到图像分布，从而能够在逆向阶段(reverseprocess)产生图像样本(sample )</p><p>DDPM的最大的优点在哪呢？我不需要去考虑这个复杂的后验分布<spanclass="math inline">\(p(z|x)\)</span>了，因为我直接变换到一个简单的分布，并且全部专注在如何做生成上，当然缺点也有，这个简单分布不像后验分布一样具有表征(representationlearning)的意义</p><h1 id="如何理解离散扩散">如何理解离散扩散</h1><p>DPM的原理是，定义了一条马尔科夫链：</p><p>马尔科夫链的角度看联合分布，联合分布等于链开始的节点概率乘一堆条件概率,</p><p><span class="math inline">\(q(x^{(0...T)}) = q(x^{(0)}) \prod_{t=1}^Tq(x^{(t)}|x^{(t-1)})\)</span></p><p>对连续扩散过程而言，step size足够小的时候，<spanclass="math inline">\(q(x^{(t)}|x^{(t-1)})\)</span>​作为转移核，当转移核是高斯分布时，该马尔科夫链的稳态分布也是高斯分布</p><p>当然这些说的都是概率，我们更关心的是样本</p><p>DPM运用的前向概率transformation和反向产生样本的方法是祖先采样：即利用前一次<em>采样</em>结果的分布数据来生成这一次的<em>采样</em>结果，走完这条马尔科夫链就是采样出最终的数据分布。</p><p>这里参考<ahref="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">1</a>的推导</p><p><span class="math inline">\(\begin{aligned}q(\mathbf{x}_{t-1} \vert \mathbf{x}_t, \mathbf{x}_0)&amp;= q(\mathbf{x}_t \vert \mathbf{x}_{t-1}, \mathbf{x}_0) \frac{q(\mathbf{x}_{t-1} \vert \mathbf{x}_0) }{ q(\mathbf{x}_t \vert\mathbf{x}_0) } \\&amp;\propto \exp \Big(-\frac{1}{2} \big(\frac{(\mathbf{x}_t -\sqrt{\alpha_t} \mathbf{x}_{t-1})^2}{\beta_t} + \frac{(\mathbf{x}_{t-1}- \sqrt{\bar{\alpha}_{t-1}} \mathbf{x}_0)^2}{1-\bar{\alpha}_{t-1}} -\frac{(\mathbf{x}_t - \sqrt{\bar{\alpha}_t}\mathbf{x}_0)^2}{1-\bar{\alpha}_t} \big) \Big) \\&amp;= \exp \Big(-\frac{1}{2} \big(\frac{\mathbf{x}_t^2 -2\sqrt{\alpha_t} \mathbf{x}_t \color{blue}{\mathbf{x}_{t-1}}\color{black}{+ \alpha_t} \color{red}{\mathbf{x}_{t-1}^2} }{\beta_t} +\frac{ \color{red}{\mathbf{x}_{t-1}^2} \color{black}{- 2\sqrt{\bar{\alpha}_{t-1}} \mathbf{x}_0} \color{blue}{\mathbf{x}_{t-1}}\color{black}{+ \bar{\alpha}_{t-1}\mathbf{x}_0^2}  }{1-\bar{\alpha}_{t-1}} - \frac{(\mathbf{x}_t -\sqrt{\bar{\alpha}_t} \mathbf{x}_0)^2}{1-\bar{\alpha}_t} \big) \Big) \\&amp;= \exp\Big( -\frac{1}{2} \big(\color{red}{(\frac{\alpha_t}{\beta_t} + \frac{1}{1 -\bar{\alpha}_{t-1}})} \mathbf{x}_{t-1}^2 -\color{blue}{(\frac{2\sqrt{\alpha_t}}{\beta_t} \mathbf{x}_t +\frac{2\sqrt{\bar{\alpha}_{t-1}}}{1 - \bar{\alpha}_{t-1}} \mathbf{x}_0)}\mathbf{x}_{t-1} \color{black}{ + C(\mathbf{x}_t, \mathbf{x}_0) \big)\Big)}\end{aligned}\)</span></p><p>利用前向的<spanclass="math inline">\(p(x_t|x_0)\)</span>的分布，预估出一个<spanclass="math inline">\(\mathbf{x}_0 =\frac{1}{\sqrt{\bar{\alpha}_t}}(\mathbf{x}_t - \sqrt{1 -\bar{\alpha}_t}\boldsymbol{\epsilon}_t)\)</span></p><p>最终得到的参数化的目标为：<span class="math inline">\(\begin{aligned}\boldsymbol{\mu}_\theta(\mathbf{x}_t, t) &amp;=\color{cyan}{\frac{1}{\sqrt{\alpha_t}} \Big( \mathbf{x}_t - \frac{1 -\alpha_t}{\sqrt{1 - \bar{\alpha}_t}}\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \Big)} \\\text{Thus }\mathbf{x}_{t-1} &amp;= \mathcal{N}(\mathbf{x}_{t-1};\frac{1}{\sqrt{\alpha_t}} \Big( \mathbf{x}_t - \frac{1 -\alpha_t}{\sqrt{1 - \bar{\alpha}_t}}\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \Big),\boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t))\end{aligned}\)</span></p><p>推导的这里写的比较模糊，具体的可以详细看看参考[],本文的重点是给出离散DDPM的动机以及直观解释。公式推导也不是难点☻</p><img src="/2024/DDPM/image-20240620091705839.png" class=""><h1 id="ddpm比dpm的改进点">DDPM比DPM的改进点</h1><h1 id="qa">QA</h1><blockquote><p>几个QA：</p><ol type="1"><li><p>为什么学到了x_0到x_t的噪声不能用这个噪声直接得到原图？？</p><p>回答：因为本质上要做分布的transformation</p><p>假设你手头现在就一张图片，加上噪声，送进网络学到了这个噪声，那你反向怎么做？直接减去这个噪声？这样的话你只是得到了原始的图像，但是并不是在做生成！真正的生成是要你从<spanclass="math inline">\(p(x_0|x_1)\)</span>这个分布里采样，这个采样要怎么做？<spanclass="math inline">\(p(x_0|x_1) =\frac{p(x_1|x_0)p(x_0)}{p(x_1)}\)</span> ok <spanclass="math inline">\(p(x_0)\)</span>我们不知道，没法做。用前面学到的噪声不是从这个分布采样，顶多是记住了前向加的噪声，能还原到原始的<spanclass="math inline">\(x_0\)</span>​那一个点，而不是分布里采样得到的</p></li></ol></blockquote><blockquote><ol start="2" type="1"><li><p>扩散模型加噪音改为渐变成纯色(纯黑或白、灰)还有效果吗</p><p>变成纯黑或者纯白，意味着网络在生成的时候接受一样的输入，这样网络倾向于输出每个label的平均值(这样loss最小)，生成效果会不好。从分布的映射角度思考会更好，最好输入是一个随机的分布，然后靠算法实现分布的transformation</p></li></ol></blockquote><blockquote><ol start="3" type="1"><li>为什么reverseprocess的时候不是学的单步噪声，为什么实际网络训练的时候直接学一个<spanclass="math inline">\(x_0\)</span>到任意<spanclass="math inline">\(x_t\)</span>的多样的的噪声</li></ol><p>学这个跨步噪声一方面公式推出来是这个样子，另一方面因为我们在计算时为了计算后验分布引入了<spanclass="math inline">\(x_0\)</span>这个条件，不学单步噪声是因为没意义，我们要做的是分布的transformation。这里我们反复强调了分布的transformation，因为generativeModel最终的就是如何拟合概率和如何进行sample！</p></blockquote><blockquote><p>一点民科的想法：</p><p>去噪有点像在一个大的流形学习数据在哪里</p><img src="/2024/DDPM/image-20240618131122259.png" class="" title="image-20240618131122259"><p>图中黑色是加噪(往外走) 红色是往回走，是网络要学的部分</p><p>而扩散更像是走路，在正向的基础上，反向的时候沿着某个梯度走</p><img src="/2024/DDPM/image-20240618131607952.png" class="" title="image-20240618131607952"><p>扩散真正训练起来和去噪非常像，加了各种尺度的噪声</p><p>去噪加朗之万采样 &lt;==&gt; sm加朗之万采样 &lt;=&gt; 扩散模型</p><p>虽然从扩散的角度其实是为了做 transform，实现反向马尔可夫链每一步的采样，但是底层的逻辑还是去学那个数据梯度，这点sm 和去噪，扩散，跑着殊途同归</p><ul><li>判断一个生成模型的好坏，可以从以下三点看：<ul><li>采样是否迅速？</li><li>模型生成结果的多样性是否充足？</li><li>生成样本是否高质量？</li></ul></li></ul></blockquote><p>下一篇会讲SDE视角下的连续时间扩散模型</p><p>最后，多读读原论文和代码，"只接受二手知识就跟只抽二手烟差不多"，而我这文章可能算是四手烟了都，看多了容易呛着</p><p>参考：</p><p>[1]https://lilianweng.github.io/posts/2021-07-11-diffusion-models/</p><p>[2] Jascha Sohl-Dickstein, Eric A. Weiss, Niru Maheswaranathan, andSurya Ganguli. Deep unsupervised learning using nonequilibriumthermodynamics. 2015. <ahref="https://arxiv.org/abs/1503.03585">arXiv:1503.03585</a></p><p>[3] Calvin Luo. Understanding diffusion models: a unifiedperspective. 2022. <ahref="https://arxiv.org/abs/2208.11970">arXiv:2208.11970</a>.</p><p>[4] Jonathan Ho, Ajay Jain, and Pieter Abbeel. Denoising diffusionprobabilistic models. 2020. <ahref="https://arxiv.org/abs/2006.11239">arXiv:2006.11239</a>.</p>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;这一章要开始讲DDPM了&lt;/p&gt;</summary>
+    
+    
+    
+    
+    <category term="generative model" scheme="https://rickustc.github.io/tags/generative-model/"/>
+    
+  </entry>
   
   <entry>
     <title>GAN</title>

@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'PT Serif';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/l/font?kit=EJRVQgYoZZY2vCFuvDFU3LK1J32rwK0pgg&skey=e37119e9cd703ddf&v=v18) format('woff2');
+}

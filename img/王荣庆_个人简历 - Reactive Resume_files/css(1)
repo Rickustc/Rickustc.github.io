@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/l/font?kit=u-440qyriQwlOrhSvowK_l5OfjRBEoaaxpCbSQo&skey=379c1eccf863c625&v=v30) format('woff2');
+}
