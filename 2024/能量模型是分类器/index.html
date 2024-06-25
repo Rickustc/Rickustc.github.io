@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Rick Universe</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Rick Universe"><meta name="msapplication-TileImage" content="/img/agumon.svg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Rick Universe"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="能量模型 首先这篇文章让我想起来之前看过的一篇论文， 《》用能量模型来做分类器 能量模型把数据分布建模成能量：\(p(\mathbf{x}) &amp;#x3D; \frac{e^{-E(\mathbf{x})}}{Z}\) 其中概率和能量成反比，概率越高，能量越低 能量模型建模的两个主要难点就是 配分函数如何求解或者近似，以及如何从分布中采样 能量模型建模联合概率的方式是同时输入x和y，成对的xy"><meta property="og:type" content="blog"><meta property="og:title" content="Rick Universe"><meta property="og:url" content="https://rickustc.github.io/2024/%E8%83%BD%E9%87%8F%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%88%86%E7%B1%BB%E5%99%A8/"><meta property="og:site_name" content="Rick Universe"><meta property="og:description" content="能量模型 首先这篇文章让我想起来之前看过的一篇论文， 《》用能量模型来做分类器 能量模型把数据分布建模成能量：\(p(\mathbf{x}) &amp;#x3D; \frac{e^{-E(\mathbf{x})}}{Z}\) 其中概率和能量成反比，概率越高，能量越低 能量模型建模的两个主要难点就是 配分函数如何求解或者近似，以及如何从分布中采样 能量模型建模联合概率的方式是同时输入x和y，成对的xy"><meta property="og:locale" content="en_US"><meta property="article:published_time" content="2024-06-25T09:29:17.681Z"><meta property="article:modified_time" content="2024-06-25T09:29:19.866Z"><meta property="article:author" content="Rick Wang"><meta property="twitter:card" content="summary"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://rickustc.github.io/2024/%E8%83%BD%E9%87%8F%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%88%86%E7%B1%BB%E5%99%A8/"},"headline":"Rick Universe","image":[],"datePublished":"2024-06-25T09:29:17.681Z","dateModified":"2024-06-25T09:29:19.866Z","author":{"@type":"Person","name":"Rick Wang"},"publisher":{"@type":"Organization","name":"Rick Universe","logo":{"@type":"ImageObject","url":"https://rickustc.github.io/img/agumon.svg"}},"description":"能量模型\r 首先这篇文章让我想起来之前看过的一篇论文，\r 《》用能量模型来做分类器\r 能量模型把数据分布建模成能量：\\(p(\\mathbf{x}) &#x3D;\r \\frac{e^{-E(\\mathbf{x})}}{Z}\\)\r 其中概率和能量成反比，概率越高，能量越低\r 能量模型建模的两个主要难点就是\r 配分函数如何求解或者近似，以及如何从分布中采样\r 能量模型建模联合概率的方式是同时输入x和y，成对的xy"}</script><link rel="canonical" href="https://rickustc.github.io/2024/%E8%83%BD%E9%87%8F%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%88%86%E7%B1%BB%E5%99%A8/"><link rel="icon" href="/img/agumon.svg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.7.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;600&amp;family=Source+Code+Pro"><link rel="stylesheet" href="/css/default.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><script src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" defer></script><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<script>
+  (function () {
+      function switchTab() {
+          if (!location.hash) {
+            return;
+          }
+
+          const id = '#' + CSS.escape(location.hash.substring(1));
+          const $tabMenu = document.querySelector(`.tabs a[href="${id}"]`);
+          if (!$tabMenu) {
+            return;
+          }
+
+          const $tabMenuContainer = $tabMenu.parentElement.parentElement;
+          Array.from($tabMenuContainer.children).forEach($menu => $menu.classList.remove('is-active'));
+          Array.from($tabMenuContainer.querySelectorAll('a'))
+              .map($menu => document.getElementById($menu.getAttribute("href").substring(1)))
+              .forEach($content => $content.classList.add('is-hidden'));
+
+          if ($tabMenu) {
+              $tabMenu.parentElement.classList.add('is-active');
+          }
+          const $activeTab = document.querySelector(id);
+          if ($activeTab) {
+              $activeTab.classList.remove('is-hidden');
+          }
+      }
+      switchTab();
+      window.addEventListener('hashchange', switchTab, false);
+  })();
+  </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Rick Universe" type="application/atom+xml">
+</head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container navbar-container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/agumon.svg" alt="Rick Universe" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/rick">RICK UNIVERSE</a><a class="navbar-item" href="/curriculum">Curriculum</a><a class="navbar-item" href="/">BLOG</a><a class="navbar-item" href="/life">LIFE</a><a class="navbar-item" href="/paper_note">Paper</a><a class="navbar-item" href="/archives">ARCHIVES</a><a class="navbar-item" href="/categories">CATEGORIES</a><a class="navbar-item" href="/tags">TAGS</a><a class="navbar-item" href="/about">ABOUT</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-9-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2024-06-25T09:29:17.681Z" title="2024/6/25下午5:29:17">2024-06-25</time></span><span class="level-item">Updated&nbsp;<time dateTime="2024-06-25T09:29:19.866Z" title="2024/6/25下午5:29:19">2024-06-25</time></span><span class="level-item">15 minutes read (About 2321 words)</span><span class="level-item" id="busuanzi_container_page_pv"><span id="busuanzi_value_page_pv">0</span>&nbsp;visits</span></div></div><div class="content"><h1 id="能量模型">能量模型</h1>
+<p>首先这篇文章让我想起来之前看过的一篇论文，
+《》用能量模型来做分类器</p>
+<p>能量模型把数据分布建模成能量：<span
+class="math inline">\(p(\mathbf{x}) =
+\frac{e^{-E(\mathbf{x})}}{Z}\)</span></p>
+<p>其中概率和能量成反比，概率越高，能量越低</p>
+<p>能量模型建模的两个主要难点就是
+配分函数如何求解或者近似，以及如何从分布中采样</p>
+<p>能量模型建模联合概率的方式是同时输入x和y，成对的xy能量小，不成对的xy能量大</p>
+<p>相当于普通判别网络做mnist分类：</p>
+<ul>
+<li><span class="math inline">\(y = f_w(x)\)</span></li>
+<li>x:784维向量</li>
+<li>y:10维向量</li>
+<li>w神经网络f的参数</li>
+</ul>
+<p>能量模型做分类：</p>
+<ul>
+<li><span class="math inline">\(E = f_w(x,y)\)</span>​</li>
+<li>输入794维向量</li>
+</ul>
+<p>能量模型如何构建？</p>
+<p><span class="math inline">\(\text{假设数据集为} (x, y) \in
+(\mathbb{R}^D, \mathbb{R}), y \in \{0, 1, 2, \ldots, K-1\},\\
+\text{能量函数由神经网络参数化}
+E(x, y; \theta) = -NN_{\theta}(x, y)[y],
+\text{这里的}[y]\text{表示不同的标签}。\)</span></p>
+<p>如何对<span class="math inline">\(p(x,y)\)</span>进行建模？</p>
+<figure>
+<img
+src="C:\Users\wangrongqing\AppData\Roaming\Typora\typora-user-images\image-20240625163125331.png"
+alt="image-20240625163125331" />
+<figcaption aria-hidden="true">image-20240625163125331</figcaption>
+</figure>
+<p><span class="math inline">\(\begin{align*}
+\ln p_{\theta}(x, y) &amp;= \ln p_{\theta}(y | x) + \ln p_{\theta}(x) \\
+&amp;= \ln \left( \frac{\exp\{NN_{\theta}(x)[y]\}}{\sum_{y}
+\exp\{NN_{\theta}(x)[y]\}} \right) + \ln \left( \frac{\sum_{y}
+\exp\{NN_{\theta}(x)[y]\}}{Z_{\theta}} \right) \\
+&amp;= \ln \text{softmax} \{NN_{\theta}(x)[y]\} + \{
+\text{LogSumExp}_{y} \{NN_{\theta}(x)[y]\} - \ln Z_{\theta} \}
+\end{align*}\)</span></p>
+<p>可以看到同时建模分类和生成</p>
+<p>对这个似然求导又会遇到老朋友，从<span
+class="math inline">\(p_{\theta}(x)\)</span>中采样，这时候我们再一次利用朗之万动力学这个依靠数据梯度的梯度下降方法（SGLD），具体算法如下：</p>
+<figure>
+<img
+src="C:\Users\wangrongqing\AppData\Roaming\Typora\typora-user-images\image-20240625163542609.png"
+alt="image-20240625163542609" />
+<figcaption aria-hidden="true">image-20240625163542609</figcaption>
+</figure>
+<h1 id="classifier-free-diffusion-guidance">Classifier-free diffusion
+guidance</h1>
+<h2 id="classifier-guidence">classifier guidence</h2>
+<p>得分函数的一个良好性质是使得我们不用去考虑归一化分母：</p>
+<p><span class="math inline">\(\nabla_x \log \tilde{p}(x) = \nabla_x
+\log (p(x) \cdot Z) = \nabla_x (\log p(x) + \log Z) = \nabla_x \log
+p(x),\)</span></p>
+<p>利用贝叶斯公式，我们将条件生成拆解生一个生成器和一个分类器</p>
+<p><span class="math inline">\(p(x \mid y) = \frac{p(y \mid x) \cdot
+p(x)}{p(y)} \\
+\implies \log p(x \mid y) = \log p(y \mid x) + \log p(x) - \log p(y) \\
+\implies \nabla_x \log p(x \mid y) = \nabla_x \log p(y \mid x) +
+\nabla_x \log p(x),\)</span></p>
+<p><span class="math inline">\(p(y∣x)\)</span>
+正是分类器和其他判别模型试图拟合的内容：xxx 是某个高维输入，而 y
+是目标标签。如果我们有一个可微分的判别模型来估计 <span
+class="math inline">\(p(y∣x)\)</span>，那么我们也可以轻松获得 <span
+class="math inline">\(\nabla_x \log
+p(y|x)\)</span>。将无条件扩散模型转换为条件模型所需要的只是一个分类器,Sohl-Dickstein
+等人和 Song 等人提到，扩散模型可以通过这种方式事后进行条件化，但
+Dhariwal 和 Nichol
+真正强调了这一点，并展示了分类器引导如何通过增强条件信号显著提高样本质量，即使在与传统条件建模结合使用时也是如此。为此，他们将条件项按一个因子进行缩放：</p>
+<p><span class="math inline">\(\nabla_x \log p_{\gamma}(x|y) = \nabla_x
+\log p(x) + \gamma \nabla_x \log p(y|x)\)</span></p>
+<p>其中，<span
+class="math inline">\(\gamma\)</span>​​被称为引导尺度，将其调高到超过 1
+的效果是放大条件信号的影响。</p>
+<p>事实上这意味着我们将分布的条件部分提升到一个幂次，这对应于调整该分布的温度：γ是一个逆温度参数。如果
+γ&gt;1&gt;
+1γ&gt;1，这会通过将概率质量从最不可能的值转移到最可能的值来使分布变得更加尖锐并聚焦于其模式（即温度降低）。分类器引导允许我们仅对捕捉条件信号影响的分布部分应用这种温度调节。</p>
+<p>在语言建模中，现在很常见的是先训练一个强大的无条件语言模型，然后根据需要将其适应下游任务（通过少样本学习或微调）。表面上看，分类器引导使得图像生成能够实现同样的效果：可以先训练一个强大的无条件模型，然后在测试时根据需要使用一个单独的分类器对其进行条件化。</p>
+<p>不幸的是，有一些问题使得这种方法不切实际。最重要的是，因为扩散模型是通过逐步去噪输入来操作的，任何用于引导的分类器也需要能够应对高噪声水平，以便在整个采样过程中提供有用的信号。这通常需要专门训练一个用于引导的分类器，在这种情况下，可能更容易端到端地训练一个传统的条件生成模型（或至少微调一个无条件模型以合并条件信号）。</p>
+<p>但即使我们有一个噪声鲁棒的分类器，分类器引导在其效果上也是有限的，分类器经常会学习到一些不鲁棒的相关性（即使是那些经过训练对高斯噪声具有鲁棒性的分类器），结果是它们相对于输入的梯度可能指向不理想的方向。。</p>
+<p><span class="math inline">\(p_{\gamma}(x \mid y) \propto p(x) \cdot
+p(y \mid x)^{\gamma}.\)</span>​</p>
+<h2 id="classifier-free">classifier free</h2>
+<p>不需要训练一个单独的分类器。相反，我们训练一个条件扩散模型 p(x∣y)p(x
+y)p(x∣y)，并引入条件丢失（conditioning
+dropout）：有一定比例的时间，条件信息 yyy 被移除（10-20%
+的比例通常效果较好）。在实践中，通常用一个特殊的输入值来表示条件信息的缺失。由此得到的模型现在可以在提供条件信号时作为条件模型
+p(x∣y)p(x y)p(x∣y) 运行，也可以在没有条件信号时作为无条件模型
+p(x)p(x)p(x)
+运行。你可能会认为这会以条件建模性能为代价，但实际上这种影响似乎可以忽略不计。</p>
+<p>这对我们有什么帮助呢？回想之前的贝叶斯定理，但让我们反过来应用</p>
+<p><span class="math inline">\(p(y \mid x) = \frac{p(x \mid y) \cdot
+p(y)}{p(x)} \\
+    \implies \log p(y \mid x) = \log p(x \mid y) + \log p(y) - \log p(x)
+\\
+    \implies \nabla_x \log p(y \mid x) = \nabla_x \log p(x \mid y) -
+\nabla_x \log p(x).\nabla_x \log p_{\gamma}(x \mid y) = \nabla_x \log
+p(x) + \gamma (\nabla_x \log p(x \mid y) - \nabla_x \log p(x)) \\
+    \nabla_x \log p_{\gamma}(x \mid y) = (1 - \gamma) \nabla_x \log p(x)
++ \gamma \nabla_x \log p(x \mid y).\)</span></p>
+<p>为什么这比分类器引导效果好得多？主要原因是我们从生成模型构建了“分类器”。标准分类器可以取巧，忽略大部分输入
+xxx
+而仍然获得有竞争力的分类结果，而生成模型则没有这种奢侈。这使得生成的梯度更加鲁棒。另外，我们只需训练一个（生成）模型，并且条件丢失（conditioning
+dropout）很容易实现。</p>
+<p>值得注意的是，从分类器无引导（classifier-free guidance）理念的发表到
+OpenAI 的 GLIDE 模型的问世，时间窗口非常短，而 GLIDE
+模型利用这一理念取得了巨大的效果，以至于有时这个理念被归功于后者！简单而强大的理念往往会迅速被采纳。在功效与简洁性的比例方面，分类器无引导与
+dropout 相当，在我看来，真的是一个改变游戏规则的创新！</p>
+<p>（事实上，GLIDE
+论文中提到，他们最初训练了一个文本条件模型，并仅在微调阶段应用了条件丢失。或许这样做有充分的理由，但我怀疑这只是因为他们决定将这个理念应用于他们之前已经训练好的模型上！）</p>
+<p>显然，引导代表了一种权衡：它显著提高了对条件信号的遵从性以及整体样本质量，但代价是多样性的巨大损失。在条件生成建模中，这通常是一个可以接受的权衡，因为条件信号往往已经捕捉了我们实际关心的大部分变异性，如果我们需要多样性，我们也可以简单地修改我们提供的条件信号。</p>
+<p>后面关于这方面会出两篇代码上的讲解</p>
+<h1 id="本文的重点">本文的重点：</h1>
+<p>待更新...</p>
+<p>参考：</p>
+<p>https://www.bilibili.com/video/BV1Bh411r7k9/?spm_id_from=333.337.search-card.all.click&amp;vd_source=1fc065f050bce8320b3a173f446bbc81</p>
+<p>https://github.com/jmtomczak/intro_dgm</p>
+<p>https://www.zhihu.com/question/499485994/answer/2552791458</p>
+<p>https://www.youtube.com/watch?v=cO6_gIsQYug</p>
+<p>https://arxiv.org/abs/1912.03263</p>
+<p>https://sander.ai/2022/05/26/guidance.html</p>
+</div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/css/share.min.css"><div class="social-share"></div><script src="https://cdn.jsdelivr.net/npm/social-share.js@1.0.16/dist/js/social-share.min.js"></script></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/img/wechatpay.jpg" alt="Alipay"></span></a><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/img/wechat.jpg" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2024/SDE%E8%A7%86%E8%A7%92%E7%9A%84DDPM/"><span class="level-item">SDE视角的扩散模型</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div id="disqus_thread"><noscript>Please enable JavaScript to view the <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript></div><script>var disqus_config = function () {
+            this.page.url = 'https://rickustc.github.io/2024/%E8%83%BD%E9%87%8F%E6%A8%A1%E5%9E%8B%E6%98%AF%E5%88%86%E7%B1%BB%E5%99%A8/';
+            this.page.identifier = '2024/能量模型是分类器/';
+        };
+        (function() {
+            var d = document, s = d.createElement('script');  
+            s.src = '//' + 'nothing' + '.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();</script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.png" alt="Rick Wang"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Rick Wang</p><p class="is-size-6 is-block" style="white-space: pre-line">AI Engineering     
+ComputerVision
+</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>Shanghai China</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">8</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">0</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">6</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Rickustc" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Rickustc"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/rick_drb"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><!--!--></div><!--!--></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/agumon.svg" alt="Rick Universe" height="28"></a><p class="is-size-7"><span>&copy; 2024 Rick Wang</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a><br><span id="busuanzi_container_site_uv">Visited by <span id="busuanzi_value_site_uv">0</span> users</span></p><p class="is-size-7">© 2019</p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><script type="text/x-mathjax-config">MathJax.Hub.Config({
+            'HTML-CSS': {
+                matchFontHeight: false
+            },
+            SVG: {
+                matchFontHeight: false
+            },
+            CommonHTML: {
+                matchFontHeight: false
+            },
+            tex2jax: {
+                inlineMath: [
+                    ['$','$'],
+                    ['\\(','\\)']
+                ]
+            }
+        });</script><script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
