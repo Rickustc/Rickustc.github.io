@@ -6,7 +6,7 @@
   <link href="https://rickustc.github.io/atom.xml" rel="self"/>
   
   <link href="https://rickustc.github.io/"/>
-  <updated>2024-06-25T09:55:17.666Z</updated>
+  <updated>2024-06-26T05:28:03.225Z</updated>
   <id>https://rickustc.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>外参内参的推导</title>
+    <link href="https://rickustc.github.io/2024/%E5%86%85%E5%8F%82%E5%92%8C%E5%A4%96%E5%8F%82%E7%9A%84%E6%8E%A8%E5%AF%BC/"/>
+    <id>https://rickustc.github.io/2024/%E5%86%85%E5%8F%82%E5%92%8C%E5%A4%96%E5%8F%82%E7%9A%84%E6%8E%A8%E5%AF%BC/</id>
+    <published>2024-06-25T16:00:00.000Z</published>
+    <updated>2024-06-26T05:28:03.225Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>[!一个问题] 什么是坐标系</p></blockquote><p>坐标系是观察世界的角度，不同坐标系是观察世界的不同角度，不同的点在不同坐标系下坐标不同</p><blockquote><p>[!一个问题] 存在哪几个坐标系</p></blockquote><p>一共有像素坐标系，图像坐标系，摄像机坐标系，世界坐标系四个坐标系。对像素坐标系的研究是在摄像机坐标系下某个点投影到相机成像平面，我们需要它的坐标然而实际情况中比如在3D视觉里我们更加一般化的要考虑2D成像平面的坐标点，反投影的3D坐标，这个时候深度信息往往未知</p><blockquote><p>[!一个问题] 内参是什么</p></blockquote><p>内参是3D到2D投影矩阵内参转换是说，在<font color="#ff0000">摄像机坐标系</font>下，给定的<font color="#ff0000">空间点</font>的坐标是齐次坐标A，求对应的<font color="#ff0000">图像坐标系下</font><font color="#ff0000">图像点</font> 的齐次坐标坐标在哪个位置。</p><blockquote><p>[!一个问题] 为什么引入齐次坐标</p></blockquote><p>齐次坐标下平移旋转这种仿射变换可以表示成线性变换(平移不是线性变换)</p><blockquote><p>[!一个问题] 外参是什么</p></blockquote><p><strong>相机坐标系并不是一个“稳定”的坐标系，其会随着相机的移动而改变坐标的原点和各个坐标轴的方向，用该坐标系下坐标进行计算，显然不是一个明智的选择</strong></p><blockquote><p>(每个人都有自己的相机，小A在自己的坐标系下说这个点是(1,0,0)点，小B在自己的坐标系下说这个点是(0,1,0))点，显然乱套。</p></blockquote><p>因此需要引进一个稳定不变坐标系：<strong>世界坐标系</strong>，该坐标系是绝对不变，SLAM中的视觉里程计就是求解相机在世界坐标系下的运动轨迹有了这个坐标系对于空间中的任意一个固定的点，我们都有他的绝对坐标(世界坐标系下的坐标)，然后根据外参得到这个相机下的相机坐标，在根据该相机的内参，得到该点投影到相机成像平面的坐标。</p><p>最后看一下齐次坐标矩阵推导，这里的推导比较简单，就是一些矩阵运算<span class="math inline">\(P&#39; = \left[ \begin{array}{cccc} \alpha&amp; 0 &amp; c_x &amp; 0 \\ 0 &amp; \beta &amp; c_y &amp; 0 \\ 0 &amp;0 &amp; 1 &amp; 0 \end{array} \right] \left[ \begin{array}{c} x \\ y \\z \\ 1 \end{array} \right] = \mathcal{MP} \\ = K \begin{bmatrix} I &amp;0 \end{bmatrix}  P\)</span></p><p>K就是内参矩阵 <span class="math inline">\(P&#39; = K \begin{bmatrix}I &amp; 0 \end{bmatrix} P = K \begin{bmatrix} I &amp; 0 \end{bmatrix}\begin{bmatrix} R &amp; T \\ 0 &amp; 1 \end{bmatrix} P_w = K\begin{bmatrix} R &amp; T \end{bmatrix} P_w = \mathcal{M} P_w\)</span>​R和T是外参矩阵</p><p>reference： <ahref="https://www.cnblogs.com/armcvai/p/17131688.html#15%E4%B8%89%E7%BB%B4%E6%97%8B%E8%BD%AC%E6%AC%A7%E6%8B%89%E8%A7%92%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2">万字长文概述单目3D目标检测算法- 嵌入式视觉 - 博客园</a> <ahref="https://zhuanlan.zhihu.com/p/387679038">面向量产的3D目标与车道线检测</a><ahref="https://blog.csdn.net/driving111/article/details/137696716">动驾驶中的单目3D 车道线检测——综述_3d车道线检测-CSDN博客</a> <ahref="https://www.bilibili.com/video/BV1mT4y1o7Q2/?spm_id_from=333.337.top_right_bar_window_history.content.click">计算机视觉之三维重建（深入浅出SfM与SLAM核心算法）——1.摄像机几何_哔哩哔哩_bilibili</a><ahref="https://blog.csdn.net/Janeiskangs/article/details/138327468">自动驾驶---Perception之IPM图和BEV图_bevipm-CSDN博客</a> <ahref="https://leijiezhang001.github.io/lane-det-from-BEV/">Apply IPM inLane Detection from BEV | LeijieZhang</a></p><p>https://leijiezhang001.github.io/lane-det-from-BEV/</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;[!一个问题] 什么是坐标系&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;坐标系是观察世界的角度，不同坐标系是观察世界的不同角度，不同的点在不同坐标系下坐标不同&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;[!一个问题] 存在哪几个坐标系&lt;/p</summary>
+      
+    
+    
+    
+    
+    <category term="3D视觉" scheme="https://rickustc.github.io/tags/3D%E8%A7%86%E8%A7%89/"/>
+    
+  </entry>
   
   <entry>
     <title>能量模型是分类器</title>
@@ -127,35 +154,6 @@
     
     
     <category term="概率论 ML数学" scheme="https://rickustc.github.io/tags/%E6%A6%82%E7%8E%87%E8%AE%BA-ML%E6%95%B0%E5%AD%A6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>外参内参的推导</title>
-    <link href="https://rickustc.github.io/2024/%E5%86%85%E5%8F%82%E5%92%8C%E5%A4%96%E5%8F%82%E7%9A%84%E6%8E%A8%E5%AF%BC/"/>
-    <id>https://rickustc.github.io/2024/%E5%86%85%E5%8F%82%E5%92%8C%E5%A4%96%E5%8F%82%E7%9A%84%E6%8E%A8%E5%AF%BC/</id>
-    <published>2024-04-25T17:00:35.000Z</published>
-    <updated>2024-06-26T05:25:37.250Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>[!一个问题]<br>什么是坐标系</p></blockquote><p>坐标系是观察世界的角度，不同坐标系是观察世界的不同角度，不同的点在不同坐标系下坐标不同</p><blockquote><p>[!一个问题]<br>存在哪几个坐标系</p></blockquote><p>一共有像素坐标系，图像坐标系，摄像机坐标系，世界坐标系四个坐标系。<br>对像素坐标系的研究是在摄像机坐标系下   某个点投影到相机成像平面，我们需要它的坐标<br>然而实际情况中比如在3D视觉里我们更加一般化的要考虑2D成像平面的坐标点，反投影的3D坐标，这个时候深度信息往往未知</p><blockquote><p>[!一个问题]<br>内参是什么</p></blockquote><p>内参是3D到2D投影矩阵<br>内参转换是说，在<font color="#ff0000">摄像机坐标系</font>下，给定的<font color="#ff0000">空间点</font>的坐标是齐次坐标A，求对应的<font color="#ff0000">图像坐标系下</font> <font color="#ff0000">图像点</font> 的齐次坐标坐标在哪个位置。</p><blockquote><p>[!一个问题]<br>为什么引入齐次坐标</p></blockquote><p>齐次坐标下平移旋转这种仿射变换可以表示成线性变换(平移不是线性变换)</p><blockquote><p>[!一个问题]<br>外参是什么</p></blockquote><p><strong>相机坐标系并不是一个“稳定”的坐标系，其会随着相机的移动而改变坐标的原点和各个坐标轴的方向，用该坐标系下坐标进行计算，显然不是一个明智的选择</strong></p><blockquote><p>(每个人都有自己的相机，小A在自己的坐标系下说这个点是(1,0,0)点，小B在自己的坐标系下说这个点是(0,1,0))点，显然乱套。</p></blockquote><p>因此需要引进一个稳定不变坐标系：<strong>世界坐标系</strong>，该坐标系是绝对不变，SLAM中的视觉里程计就是求解相机在世界坐标系下的运动轨迹<br>有了这个坐标系对于空间中的任意一个固定的点，我们都有他的绝对坐标(世界坐标系下的坐标)，然后根据外参得到这个相机下的相机坐标，在根据该相机的内参，得到该点投影到相机成像平面的坐标。</p><p>最后看一下齐次坐标矩阵推导，这里的推导比较简单，就是一些矩阵运算<br>$P’ = \left[ \begin{array}{cccc} \alpha &amp; 0 &amp; c_x &amp; 0 \ 0 &amp; \beta &amp; c_y &amp; 0 \ 0 &amp; 0 &amp; 1 &amp; 0 \end{array} \right] \left[ \begin{array}{c} x \ y \ z \ 1 \end{array} \right] = \mathcal{MP} \ = K \begin{bmatrix} I &amp; 0 \end{bmatrix}  P$</p><p>K就是内参矩阵<br>$P’ = K \begin{bmatrix} I &amp; 0 \end{bmatrix} P = K \begin{bmatrix} I &amp; 0 \end{bmatrix} \begin{bmatrix} R &amp; T \ 0 &amp; 1 \end{bmatrix} P_w = K \begin{bmatrix} R &amp; T \end{bmatrix} P_w = \mathcal{M} P_w$​<br>R和T是外参矩阵</p><p>reference：<br><a href="https://www.cnblogs.com/armcvai/p/17131688.html#15%E4%B8%89%E7%BB%B4%E6%97%8B%E8%BD%AC%E6%AC%A7%E6%8B%89%E8%A7%92%E6%97%8B%E8%BD%AC%E7%9F%A9%E9%98%B5%E4%B9%8B%E9%97%B4%E7%9A%84%E8%BD%AC%E6%8D%A2">万字长文概述单目3D目标检测算法 - 嵌入式视觉 - 博客园</a><br><a href="https://zhuanlan.zhihu.com/p/387679038">面向量产的3D目标与车道线检测</a><br><a href="https://blog.csdn.net/driving111/article/details/137696716">动驾驶中的单目 3D 车道线检测——综述_3d车道线检测-CSDN博客</a><br><a href="https://www.bilibili.com/video/BV1mT4y1o7Q2/?spm_id_from=333.337.top_right_bar_window_history.content.click">计算机视觉之三维重建（深入浅出SfM与SLAM核心算法）——1.摄像机几何_哔哩哔哩_bilibili</a><br><a href="https://blog.csdn.net/Janeiskangs/article/details/138327468">自动驾驶—Perception之IPM图和BEV图_bev ipm-CSDN博客</a><br><a href="https://leijiezhang001.github.io/lane-det-from-BEV/">Apply IPM in Lane Detection from BEV | LeijieZhang</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;blockquote&gt;
-&lt;p&gt;[!一个问题]&lt;br&gt;
-什么是坐标系&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;坐标系是观察世界的角度，不同坐标系是观察世界的不同角度，不同的点在不同坐标系下坐标不同&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;[!一个问题]&lt;br&gt;
-存在哪几个坐标系</summary>
-      
-    
-    
-    
-    
-    <category term="3D视觉" scheme="https://rickustc.github.io/tags/3D%E8%A7%86%E8%A7%89/"/>
     
   </entry>
   
