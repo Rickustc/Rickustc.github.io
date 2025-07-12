@@ -1,5 +1,5 @@
 ---
-title: "modeling a quant matmul in hardware"
+title: "Modeling Quant in hardware"
 date: 2022-11-20T09:03:20-08:00
 draft: false
 math: true
@@ -21,11 +21,10 @@ $$s_i * s_w * 2>>{shift} = s_o$$
 $$ r_i * r_w ==> [s_i * q_i] * [s_w * q_w]$$
 
 输出的量化参数在PTQ是我们提前校准好的，这里直接做一次qdq
-$$q_o = [s_i * q_i] * [s_w * q_w] / s_o \\  \hat{r_o} = q_o * s_o = [s_i * q_i] * [s_w * q_w] / s_o * s_o$$
+$$q_o = [s_i * q_i] * [s_w * q_w] / s_o  \\ \hat{r_o} = q_o * s_o = [s_i * q_i] * [s_w * q_w] / s_o * s_o$$
 这里看出来对输入和输出别添加qdq节点，等价于定点乘法，误差都来自三次quant带来的clip和round误差
 其中式2可以看成$$q_o = q_i * q_w * [s_i * s_w/s_o]$$
 
-Visit the [Hugo](https://gohugo.io) website!
 
 
 
