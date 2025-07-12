@@ -2,7 +2,8 @@ baseURL: https://example.org/
 languageCode: en-us
 title: Science_tech
 theme: ["PaperMod"]
-disableSpecial1stPost: true           # 所有文章一律用卡片
+params:
+  disableSpecial1stPost: true           # 所有文章一律用卡片
 # 网站右上角的菜单列表
 menu:
   main:
