@@ -25,5 +25,7 @@ $$q_o = [s_i * q_i] * [s_w * q_w] / s_o \\  \hat{r_o} = q_o * s_o = [s_i * q_i] 
 这里看出来对输入和输出别添加qdq节点，等价于定点乘法，误差都来自三次quant带来的clip和round误差
 其中式2可以看成$$q_o = q_i * q_w * [s_i * s_w/s_o]$$
 
+Visit the [Hugo](https://gohugo.io) website!
+
 
 
