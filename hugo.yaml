@@ -3,6 +3,20 @@ languageCode: en-us
 title: Science_tech
 theme: ["PaperMod"]
 
+params:
+  math: true          # 站点级默认开启；后续可在任意文章 front-matter 里 math=false 关闭
+
+markup:
+  markup.goldmark:
+    markup.goldmark.renderer:
+      unsafe: true    # 允许在 Markdown 中保留原始 HTML（KaTeX span 等需要）
+    markup.goldmark.extensions:
+      markup.goldmark.extensions.passthrough:   # Hugo ≥0.122 原生的数学直通扩展
+        enable: true
+        markup.goldmark.extensions.passthrough.delimiters:
+          block: [['\\[', '\\]'], ['$$', '$$']]
+          inline:  [['\\(', '\\)']]
+
 # 网站右上角的菜单列表
 menu:
   main:
