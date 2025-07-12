@@ -3,10 +3,6 @@ languageCode: en-us
 title: Science_tech
 theme: ["PaperMod"]
 
-params:
-  math: true          # 站点级默认开启；后续可在任意文章 front-matter 里 math=false 关闭
-
-
 # 网站右上角的菜单列表
 menu:
   main:
