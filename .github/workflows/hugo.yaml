@@ -19,6 +19,14 @@ defaults:
   run:
     shell: bash
 
+params:
+  math: true
+
+markup:
+  markup.goldmark:
+    markup.goldmark.renderer:
+      unsafe: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
