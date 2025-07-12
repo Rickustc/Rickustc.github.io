@@ -15,7 +15,7 @@ $$q_o = q_i * q_w * 2>>shift$$
 
 # 用浮点QDQ模拟定点乘法
 
-$$s_i*s_w*2^{shift} = s_o$$
+$$s_i*s_w*2>>{shift} = s_o$$
 
 原始的浮点乘法：
 $$r_i*r_w ==> [s_i*q_i]*[s_w*q_w]$$
