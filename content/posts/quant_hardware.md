@@ -2,6 +2,7 @@
 title: "modeling a quant matmul in hardware"
 date: 2022-11-20T09:03:20-08:00
 draft: false
+math: true
 ---
 # Introduction
 一般在定点硬件上矩阵乘法都是用定点数来乘的，可以设计成一个定点模型
