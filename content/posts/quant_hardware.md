@@ -18,7 +18,7 @@ $$q_o = q_i * q_w * 2>>shift$$
 $$s_i * s_w * 2>>{shift} = s_o$$
 
 原始的浮点乘法：
-$$r_i*r_w ==> [s_i*q_i]*[s_w*q_w]$$
+$$ r_i * r_w ==> [s_i * q_i] * [s_w * q_w]$$
 
 输出的量化参数在PTQ是我们提前校准好的，这里直接做一次qdq
 $$q_o = [s_i*q_i]*[s_w*q_w]/s_o \\ \hat{r_o} = q_o*s_o = [s_i*q_i]*[s_w*q_w]/s_o*s_o$$
