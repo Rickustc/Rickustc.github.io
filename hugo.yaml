@@ -3,7 +3,20 @@ languageCode: en-us
 title: Science_tech
 theme: ["PaperMod"]
 params:
-  disableSpecial1stPost: true           # 所有文章一律用卡片
+  disableSpecial1stPost: true           # post style
+
+  math:
+    enable: true                 # 打开数学渲染
+    mathjax: true                # 使用 MathJax 而非 KaTeX
+    mathjax_config: |            # 注意这里用 “|” 来写多行字符串
+      window.MathJax = {
+        tex: {
+          tags: 'ams',           # 自动对所有 equation 环境编号
+          packages: {'[+]': ['ams']}
+        }
+      };
+
+
 # 网站右上角的菜单列表
 menu:
   main:
