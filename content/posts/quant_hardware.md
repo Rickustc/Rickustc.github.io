@@ -19,12 +19,6 @@ $$
 
 # 用浮点QDQ模拟定点乘法
 
-$$
-\begin{align}
-s_i * s_w * 2>>{shift} = s_o
-\end{align}
-$$
-
 原始的浮点乘法：
 $$
 \begin{align}
@@ -44,7 +38,14 @@ $$
 \end{align}
 $$
 这里看出来对输入和输出别添加qdq节点，等价于定点乘法，误差都来自三次quant带来的clip和round误差
-其中式2可以看成$$q_o = q_i * q_w * [s_i * s_w / s_o]$$
+其中式4可以看成
+$$
+\begin{align}
+q_o = q_i * q_w * [s_i * s_w / s_o]
+\end{align}
+$$
+这里假设$s_i * s_w * 2>>{shift} = s_o$ , 即这种qdq浮点模型与公式1的定点模型等价
+
 
 
 
